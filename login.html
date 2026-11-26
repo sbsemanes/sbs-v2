@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log Masuk - Sistem Bersepadu SK Mantin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Favicon & Mobile Icons -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#10b981">
+
+  <!-- Supabase CDN Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-config.js"></script>
+
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --card-bg: #ffffff;
+      --neon-green: #10b981;
+      --neon-green-glow: rgba(16, 185, 129, 0.45);
+      --neon-accent: #059669;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-soft: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: var(--card-bg);
+      border-radius: 24px;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05), 0 0 25px rgba(16, 185, 129, 0.15);
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      position: relative;
+    }
+
+    .logo-container {
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+
+    .logo-img {
+      width: 95px;
+      height: 95px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.75)) drop-shadow(0 0 25px rgba(16, 185, 129, 0.35));
+    }
+
+    .login-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+    }
+
+    .login-subtitle {
+      color: var(--neon-accent);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 4px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 14px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border-soft);
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.25s ease;
+      background: #f8fafc;
+    }
+
+    .form-control:focus {
+      background: #ffffff;
+      border-color: var(--neon-green);
+      box-shadow: 0 0 12px var(--neon-green-glow);
+    }
+
+    .remember-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: -4px;
+      margin-bottom: 18px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    .remember-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      user-select: none;
+    }
+
+    .remember-label input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--neon-green);
+      cursor: pointer;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      margin-top: 4px;
+      border-radius: 12px;
+      background: var(--neon-green);
+      color: #ffffff;
+      border: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 0 15px var(--neon-green-glow);
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-login:hover {
+      background: var(--neon-accent);
+      box-shadow: 0 0 25px var(--neon-green);
+      transform: translateY(-2px);
+    }
+
+    .btn-login:disabled {
+      background: #94a3b8;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .alert-box {
+      margin-top: 18px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    .alert-error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+    }
+
+    .alert-success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #15803d;
+    }
+
+    /* KOTAK PILIHAN LALUAN ADMIN */
+    .admin-choice-box {
+      display: none;
+      animation: fadeIn 0.3s ease;
+      text-align: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .admin-badge-icon {
+      width: 55px;
+      height: 55px;
+      border-radius: 16px;
+      background: #ecfdf5;
+      color: var(--neon-accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      margin-bottom: 12px;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .admin-user-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .admin-desc {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+    }
+
+    .choice-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-choice-admin {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      background: #0f172a;
+      color: #38bdf8;
+      border: 1.5px solid #38bdf8;
+      font-weight: 800;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn-choice-admin:hover {
+      background: #1e293b;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-choice-user {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      background: var(--neon-green);
+      color: #ffffff;
+      border: none;
+      font-weight: 800;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 15px var(--neon-green-glow);
+      transition: all 0.2s ease;
+    }
+
+    .btn-choice-user:hover {
+      background: var(--neon-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px var(--neon-green);
+    }
+
+    .btn-switch-account {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 18px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-card">
+    <div class="logo-container">
+      <img src="https://drive.google.com/thumbnail?id=1RS_uTMj2Bn7BKnj5U2MLGrcYTwJiQOGj&sz=w200" id="schoolLogo" alt="Logo SK Mantin" class="logo-img">
+    </div>
+
+    <!-- 1. BORANG LOG MASUK UTAMA -->
+    <div id="loginFormSection">
+      <h1 class="login-title">SK Mantin</h1>
+      <p class="login-subtitle">Log Masuk Sistem Bersepadu</p>
+
+      <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <div class="input-wrapper">
+            <i class="fas fa-user"></i>
+            <input type="text" id="usernameInput" class="form-control" placeholder="Masukkan ID anda" required autocomplete="username">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrapper">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="passwordInput" class="form-control" placeholder="Masukkan kata laluan" required autocomplete="current-password">
+          </div>
+        </div>
+
+        <div class="remember-wrapper">
+          <label class="remember-label">
+            <input type="checkbox" id="rememberMe"> Ingat Saya (Remember Me)
+          </label>
+        </div>
+
+        <button type="submit" id="btnLogin" class="btn-login">
+          <i class="fas fa-sign-in-alt"></i> Log Masuk
+        </button>
+
+        <div id="alertBox" class="alert-box alert-error"></div>
+      </form>
+    </div>
+
+    <!-- 2. PILIHAN LALUAN KHAS ADMIN -->
+    <div id="adminChoiceSection" class="admin-choice-box">
+      <div class="admin-badge-icon">
+        <i class="fas fa-user-shield"></i>
+      </div>
+      <h2 class="admin-user-title" id="adminUserGreeting">Selamat Datang, Admin</h2>
+      <p class="admin-desc">Akaun anda mempunyai akses pentadbir. Sila pilih destinasi anda:</p>
+
+      <div class="choice-buttons">
+        <a href="./admin.html" class="btn-choice-admin">
+          <i class="fas fa-tools"></i> Buka Portal Admin Sistem
+        </a>
+        <a href="./index.html" class="btn-choice-user">
+          <i class="fas fa-home"></i> Teruskan ke Sistem (Portal Guru)
+        </a>
+      </div>
+
+      <button type="button" class="btn-switch-account" onclick="resetToLoginForm()">
+        <i class="fas fa-arrow-left"></i> Log masuk guna akaun lain
+      </button>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('load', async () => {
+      // Semak jika sesi token sedia ada (termasuk Remember Me) dan sahkan dengan pelayan Supabase
+      const existingToken = SemanesAuth.getToken();
+      if (existingToken) {
+        try {
+          const { data, error } = await window.supabaseClient.rpc('verify_session', { p_token: existingToken });
+          if (!error && data && data.valid) {
+            const isRemembered = !!localStorage.getItem("semanes_token");
+            SemanesAuth.saveSession(existingToken, data.user, isRemembered);
+            if (data.user.peranan && data.user.peranan.toLowerCase() === "admin") {
+              showAdminChoice(data.user.nama);
+            } else {
+              window.location.href = "./index.html";
+            }
+            return;
+          } else {
+            SemanesAuth.clearSession();
+          }
+        } catch (e) {
+          console.warn("Ralat semakan sesi:", e);
+        }
+      }
+      // Pastikan tiada kata laluan lama tertinggal di localStorage
+      localStorage.removeItem("semanes_remembered_user");
+    });
+
+    function showAdminChoice(namaGuru) {
+      document.getElementById("loginFormSection").style.display = "none";
+      document.getElementById("adminChoiceSection").style.display = "block";
+      document.getElementById("adminUserGreeting").innerText = `Selamat Datang, ${namaGuru}`;
+    }
+
+    async function resetToLoginForm() {
+      const token = SemanesAuth.getToken();
+      if (token) {
+        try { await window.supabaseClient.rpc('logout_guru', { p_token: token }); } catch (e) {}
+      }
+      SemanesAuth.clearSession();
+      document.getElementById("adminChoiceSection").style.display = "none";
+      document.getElementById("loginFormSection").style.display = "block";
+      const btn = document.getElementById("btnLogin");
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Log Masuk';
+    }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btnLogin");
+      const alertBox = document.getElementById("alertBox");
+
+      const u = document.getElementById("usernameInput").value.trim();
+      const p = document.getElementById("passwordInput").value.trim();
+      const isRemember = document.getElementById("rememberMe").checked;
+
+      alertBox.style.display = "none";
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengesahkan...';
+
+      try {
+        // Sahkan log masuk secara selamat di pelayan Supabase (bcrypt + session token)
+        const result = await SemanesAuth.login(u, p, isRemember);
+
+        if (result && result.success) {
+          const user = result.user;
+          if (user.peranan && user.peranan.toLowerCase() === "admin") {
+            showAdminChoice(user.nama);
+          } else {
+            alertBox.className = "alert-box alert-success";
+            alertBox.innerText = "Log masuk berjaya! Membuka portal...";
+            alertBox.style.display = "block";
+            setTimeout(() => {
+              window.location.href = "./index.html";
+            }, 500);
+          }
+        } else {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Log Masuk';
+          alertBox.className = "alert-box alert-error";
+          alertBox.innerText = (result && result.message) ? result.message : "Username atau Password salah.";
+          alertBox.style.display = "block";
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Log Masuk';
+        alertBox.className = "alert-box alert-error";
+        alertBox.innerText = "Ralat capaian ke pangkalan data Supabase.";
+        alertBox.style.display = "block";
+      }
+    }
+  </script>
+</body>
+</html>

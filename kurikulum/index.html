@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengurusan Kurikulum - SK Mantin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Favicon & Home Screen Icons -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+  <!-- iOS (Apple) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="SeMaNeS">
+
+  <!-- Android / PWA -->
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#10b981">
+
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --card-bg: #ffffff;
+      --neon-blue: #06b6d4;
+      --neon-blue-glow: rgba(6, 182, 212, 0.45);
+      --neon-accent: #0284c7;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-soft: #e2e8f0;
+      --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg-page); color: var(--text-main); padding: 24px 16px; min-height: 100vh; }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .btn-back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      color: var(--neon-accent);
+      border: 1.5px solid var(--neon-blue);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-decoration: none;
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .btn-back-home:hover {
+      background: var(--neon-blue);
+      color: #ffffff;
+      box-shadow: 0 0 18px var(--neon-blue-glow);
+      transform: translateY(-2px);
+    }
+
+    .user-pill {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-section { text-align: center; margin-bottom: 30px; }
+    .header-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      background: #cffafe;
+      color: #0891b2;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .header-title { font-size: 2rem; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: -0.5px; }
+    .header-subtext { color: var(--text-muted); font-weight: 500; font-size: 0.95rem; margin-top: 4px; }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::before {
+      content: '';
+      width: 5px;
+      height: 22px;
+      background: var(--neon-blue);
+      border-radius: 4px;
+      box-shadow: 0 0 8px var(--neon-blue);
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 18px;
+      margin-bottom: 40px;
+    }
+
+    .menu-card {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      padding: 24px 16px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: var(--shadow-soft);
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .menu-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--neon-blue);
+      box-shadow: 0 10px 25px -4px rgba(6, 182, 212, 0.25), 0 0 15px rgba(6, 182, 212, 0.15);
+    }
+
+    .icon-box {
+      width: 70px;
+      height: 70px;
+      border-radius: 18px;
+      background: #ecfeff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      font-size: 1.7rem;
+      color: var(--neon-accent);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      overflow: hidden;
+      padding: 8px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .icon-box img {
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .menu-card:hover .icon-box {
+      transform: scale(1.15) rotate(4deg);
+      background: #cffafe;
+      box-shadow: 0 0 15px var(--neon-blue-glow);
+    }
+
+    .menu-card-title { font-size: 1rem; font-weight: 700; color: var(--text-main); }
+
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      border-bottom: 2px solid var(--border-soft);
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 10px 18px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      color: var(--neon-accent);
+      border-bottom: 3px solid var(--neon-blue);
+      background: #ecfeff;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .table-card {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+
+    .table-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+      align-items: center;
+    }
+
+    .filter-bar select, .filter-bar input {
+      padding: 7px 12px;
+      font-size: 0.85rem;
+      border: 1.5px solid var(--border-soft);
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .filter-bar select:focus, .filter-bar input:focus {
+      border-color: var(--neon-blue);
+    }
+
+    .btn-action-blue {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--neon-blue);
+      color: #ffffff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--neon-blue-glow);
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-blue:hover { background: var(--neon-accent); transform: translateY(-2px); }
+
+    .custom-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .custom-table th { background: #f8fafc; color: var(--text-muted); font-weight: 700; padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--border-soft); white-space: nowrap; }
+    .custom-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); }
+    .custom-table tr:hover { background: #f0fdfa; }
+
+    .btn-link-file {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: #ecfeff;
+      color: #0891b2;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.8rem;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      cursor: pointer;
+    }
+    .btn-link-file:hover { background: var(--neon-blue); color: #ffffff; }
+
+    .badge-no-fail {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #f1f5f9;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.75rem;
+      border: 1px solid #cbd5e1;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 850px;
+      border: 1px solid var(--neon-blue);
+      box-shadow: 0 0 30px var(--neon-blue-glow);
+      padding: 26px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalFade 0.25s ease-out;
+    }
+
+    @keyframes modalFade { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; }
+    .modal-title { font-size: 1.2rem; font-weight: 800; color: var(--text-main); }
+    .close-modal-btn { background: none; border: none; font-size: 1.4rem; color: var(--text-muted); cursor: pointer; }
+
+    .submodal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+    .sub-card {
+      background: #f8fafc;
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.2s;
+    }
+    .sub-card:hover { background: #ffffff; border-color: var(--neon-blue); transform: translateY(-4px); box-shadow: 0 8px 16px rgba(6, 182, 212, 0.2); }
+    .sub-card-icon { width: 45px; height: 45px; border-radius: 10px; background: #cffafe; color: #0891b2; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 10px; }
+    .sub-card-title { font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full-width { grid-column: 1 / -1; }
+    .form-label { font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
+    .form-control { padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--border-soft); font-size: 0.88rem; outline: none; transition: all 0.2s; }
+    .form-control:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px var(--neon-blue-glow); }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .btn-secondary { padding: 9px 16px; border-radius: 10px; background: #f1f5f9; color: var(--text-muted); border: none; font-weight: 600; cursor: pointer; }
+
+    .printable-report { border: 2px solid #0f172a; padding: 24px; color: #000000; background: #ffffff; line-height: 1.5; }
+    .report-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px; }
+    .report-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+    .report-table td, .report-table th { border: 1px solid #000; padding: 6px 10px; font-size: 0.85rem; }
+    .report-table th { background: #f1f5f9; width: 25%; text-align: left; }
+    .report-images { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+    .report-images img { width: 100%; height: 160px; object-fit: cover; border: 1px solid #ccc; border-radius: 4px; display: block; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #printableArea, #printableArea * { visibility: visible; }
+      #printableArea { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+      .report-images img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+    .toast-msg {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2), 0 0 15px var(--neon-blue-glow);
+      border-left: 4px solid var(--neon-blue);
+      display: none;
+      z-index: 2000;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+</head>
+<body>
+
+  <div class="container">
+    <div class="top-nav">
+      <a href="../index.html" class="btn-back-home">
+        <i class="fas fa-arrow-left"></i> Kembali ke Homepage
+      </a>
+      <div class="user-pill">
+        <i class="fas fa-user-circle" style="color:var(--neon-blue); font-size:1rem;"></i>
+        <span id="navUserNama">Guru SK Mantin</span>
+      </div>
+    </div>
+
+    <header class="header-section">
+      <span class="header-badge"><i class="fas fa-graduation-cap"></i> KURIKULUM</span>
+      <h1 class="header-title">Sistem Pengurusan Kurikulum</h1>
+      <p class="header-subtext">Sekolah Kebangsaan Mantin</p>
+    </header>
+
+    <section>
+      <h2 class="section-title">Modul & Pautan Pantas</h2>
+      <div class="menu-grid" id="menuGridContainer">
+        <div style="color:#94a3b8; font-size:0.85rem;"><i class="fas fa-spinner fa-spin"></i> Memuatkan menu kurikulum...</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('tabFailPanitia')"><i class="fas fa-folder-open"></i> Fail Panitia</button>
+        <button class="tab-btn" onclick="switchTab('tabFailUnit')"><i class="fas fa-cubes"></i> Fail Unit Kurikulum</button>
+        <button class="tab-btn" onclick="switchTab('tabOPR')"><i class="fas fa-file-invoice"></i> Fail OPR</button>
+        <button class="tab-btn" onclick="switchTab('tabLaporan')"><i class="fas fa-file-alt"></i> Laporan Program</button>
+        <button class="tab-btn" onclick="switchTab('tabPelan')"><i class="fas fa-chart-line"></i> Pelan Strategik</button>
+        <button class="tab-btn" onclick="switchTab('tabCarta')"><i class="fas fa-sitemap"></i> Carta Organisasi</button>
+        <button class="tab-btn" onclick="switchTab('tabMinit')"><i class="fas fa-comments"></i> Minit Mesyuarat</button>
+      </div>
+
+      <!-- TAB 1: FAIL PANITIA -->
+      <div id="tabFailPanitia" class="tab-content active">
+        <div class="table-card">
+          <div class="table-top-bar">
+            <div>
+              <h3 style="font-size:1.1rem; font-weight:800;">Pengurusan Fail Panitia (Partition)</h3>
+              <p style="font-size:0.82rem; color:var(--text-muted);">Simpanan dokumen mengikut panitia & partition fail.</p>
+            </div>
+            <button class="btn-action-blue" onclick="openFailPartitionModal('panitia')">
+              <i class="fas fa-upload"></i> Muat Naik Fail Panitia
+            </button>
+          </div>
+
+          <div class="filter-bar">
+            <select id="filterSesiPanitia" onchange="filterFailTable('panitia')">
+              <option value="">Semua Sesi</option>
+            </select>
+            <select id="filterNamaPanitia" onchange="filterFailTable('panitia')">
+              <option value="">Semua Panitia</option>
+            </select>
+            <!-- FILTER NAMA FAIL (INDEX INDUK) -->
+            <select id="filterNamaFailPanitia" onchange="filterFailTable('panitia')">
+              <option value="">Semua Nama Fail</option>
+            </select>
+            <input type="text" id="searchFailPanitia" placeholder="Cari nama fail / kandungan / dokumen..." oninput="filterFailTable('panitia')">
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Sesi</th>
+                  <th>Panitia</th>
+                  <th>Nama Fail</th>
+                  <th>Kandungan Fail</th>
+                  <th>Nama Dokumen</th>
+                  <th>Dimuat Naik Oleh</th>
+                  <th style="text-align:center;">Pautan Dokumen</th>
+                </tr>
+              </thead>
+              <tbody id="failPanitiaTableBody">
+                <tr><td colspan="7" style="text-align:center; color:#94a3b8;">Memuatkan fail panitia...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: FAIL UNIT KURIKULUM -->
+      <div id="tabFailUnit" class="tab-content">
+        <div class="table-card">
+          <div class="table-top-bar">
+            <div>
+              <h3 style="font-size:1.1rem; font-weight:800;">Pengurusan Fail Unit Kurikulum</h3>
+              <p style="font-size:0.82rem; color:var(--text-muted);">Simpanan dokumen mengikut unit kurikulum & partition fail.</p>
+            </div>
+            <button class="btn-action-blue" onclick="openFailPartitionModal('unit')">
+              <i class="fas fa-upload"></i> Muat Naik Fail Unit
+            </button>
+          </div>
+
+          <div class="filter-bar">
+            <select id="filterSesiUnit" onchange="filterFailTable('unit')">
+              <option value="">Semua Sesi</option>
+            </select>
+            <select id="filterNamaUnit" onchange="filterFailTable('unit')">
+              <option value="">Semua Unit</option>
+            </select>
+            <!-- FILTER NAMA FAIL (INDEX INDUK) -->
+            <select id="filterNamaFailUnit" onchange="filterFailTable('unit')">
+              <option value="">Semua Nama Fail</option>
+            </select>
+            <input type="text" id="searchFailUnit" placeholder="Cari nama fail / kandungan / dokumen..." oninput="filterFailTable('unit')">
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Sesi</th>
+                  <th>Unit Kurikulum</th>
+                  <th>Nama Fail</th>
+                  <th>Kandungan Fail</th>
+                  <th>Nama Dokumen</th>
+                  <th>Dimuat Naik Oleh</th>
+                  <th style="text-align:center;">Pautan Dokumen</th>
+                </tr>
+              </thead>
+              <tbody id="failUnitTableBody">
+                <tr><td colspan="7" style="text-align:center; color:#94a3b8;">Memuatkan fail unit kurikulum...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: FAIL OPR -->
+      <div id="tabOPR" class="tab-content">
+        <div class="table-card">
+          <div class="table-top-bar">
+            <div>
+              <h3 style="font-size:1.1rem; font-weight:800;">Rekod Fail OPR (One Page Report)</h3>
+              <p style="font-size:0.82rem; color:var(--text-muted);">Muat naik dan arkib laporan ringkas satu muka surat bagi program sekolah.</p>
+            </div>
+            <button class="btn-action-blue" onclick="openOPRModal()">
+              <i class="fas fa-file-upload"></i> Muat Naik Fail OPR
+            </button>
+          </div>
+
+          <div class="filter-bar">
+            <select id="filterSesiOPR" onchange="filterOPRTable()">
+              <option value="">Semua Sesi</option>
+            </select>
+            <select id="filterUnitOPR" onchange="filterOPRTable()">
+              <option value="">Semua Panitia / Unit</option>
+            </select>
+            <input type="text" id="searchOPR" placeholder="Cari tajuk program..." oninput="filterOPRTable()">
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Sesi Persekolahan</th>
+                  <th>Panitia / Unit</th>
+                  <th>Tajuk / Program</th>
+                  <th>Disediakan Oleh</th>
+                  <th style="text-align:center;">Pautan Dokumen</th>
+                </tr>
+              </thead>
+              <tbody id="oprTableBody">
+                <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Memuatkan rekod OPR...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: LAPORAN PROGRAM -->
+      <div id="tabLaporan" class="tab-content">
+        <div class="table-card">
+          <div class="table-top-bar">
+            <div>
+              <h3 style="font-size:1.1rem; font-weight:800;">Rekod Laporan Program Kurikulum</h3>
+              <p style="font-size:0.82rem; color:var(--text-muted);">Lihat semula laporan yang dihantar, cetak atau simpan PDF.</p>
+            </div>
+            <button class="btn-action-blue" onclick="openLaporanModal()">
+              <i class="fas fa-plus-circle"></i> Tambah Laporan Program
+            </button>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Tarikh</th>
+                  <th>Unit / Panitia</th>
+                  <th>Tajuk Aktiviti</th>
+                  <th>Peringkat</th>
+                  <th>Disediakan Oleh</th>
+                  <th style="text-align:center;">Tindakan</th>
+                </tr>
+              </thead>
+              <tbody id="laporanTableBody">
+                <tr><td colspan="6" style="text-align:center; color:#94a3b8;">Memuatkan rekod...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: PELAN STRATEGIK -->
+      <div id="tabPelan" class="tab-content">
+        <div class="table-card">
+          <div class="table-top-bar">
+            <div>
+              <h3 style="font-size:1.1rem; font-weight:800;">Pelan Strategik Kurikulum</h3>
+              <p style="font-size:0.82rem; color:var(--text-muted);">Senarai fail PDF & Gambar Pelan Strategik.</p>
+            </div>
+            <button class="btn-action-blue" onclick="openUploadModal('Pelan Strategik')">
+              <i class="fas fa-file-upload"></i> Muat Naik Fail
+            </button>
+          </div>
+          <table class="custom-table">
+            <thead><tr><th>No</th><th>Sesi / Tahun</th><th>Pautan / Fail</th></tr></thead>
+            <tbody id="pelanTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 6: CARTA ORGANISASI -->
+      <div id="tabCarta" class="tab-content">
+        <div class="table-card">
+          <div class="table-top-bar">
+            <div>
+              <h3 style="font-size:1.1rem; font-weight:800;">Carta Organisasi Kurikulum</h3>
+              <p style="font-size:0.82rem; color:var(--text-muted);">Fail Carta Organisasi Kurikulum (PDF / Imej).</p>
+            </div>
+            <button class="btn-action-blue" onclick="openUploadModal('Carta Organisasi')">
+              <i class="fas fa-file-upload"></i> Muat Naik Fail
+            </button>
+          </div>
+          <table class="custom-table">
+            <thead><tr><th>No</th><th>Sesi / Tahun</th><th>Pautan / Fail</th></tr></thead>
+            <tbody id="cartaTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 7: MINIT MESYUARAT -->
+      <div id="tabMinit" class="tab-content">
+        <div class="table-card">
+          <div class="table-top-bar">
+            <div>
+              <h3 style="font-size:1.1rem; font-weight:800;">Minit Mesyuarat Kurikulum</h3>
+              <p style="font-size:0.82rem; color:var(--text-muted);">Minit mesyuarat kurikulum rasmi (PDF / Imej).</p>
+            </div>
+            <button class="btn-action-blue" onclick="openUploadModal('Minit Mesyuarat')">
+              <i class="fas fa-file-upload"></i> Muat Naik Fail
+            </button>
+          </div>
+          <table class="custom-table">
+            <thead><tr><th>Bilangan</th><th>Sesi / Tahun</th><th>Perkara</th><th>Pautan / Fail</th></tr></thead>
+            <tbody id="minitTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- MODAL MUAT NAIK FAIL OPR -->
+  <div class="modal-overlay" id="oprModal">
+    <div class="modal-box" style="max-width:650px;">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-file-invoice" style="color:var(--neon-blue); margin-right:8px;"></i>Muat Naik Fail OPR</div>
+        <button class="close-modal-btn" onclick="closeModal('oprModal')">&times;</button>
+      </div>
+      <form id="formOPR" onsubmit="handleOPRSubmit(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Sesi Persekolahan *</label>
+            <select id="oprSesi" class="form-control" required></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Panitia / Unit *</label>
+            <select id="oprPanitiaUnit" class="form-control" required>
+              <option value="">-- Pilih --</option>
+              <optgroup label="Unit Kurikulum" id="oprOptUnit"></optgroup>
+              <optgroup label="Panitia Mata Pelajaran" id="oprOptPanitia"></optgroup>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Tajuk / Program *</label>
+            <input type="text" id="oprTajuk" class="form-control" placeholder="Contoh: OPR - Bulan Bahasa Melayu 2026" required>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Pilih Fail Dokumen OPR (PDF / Word / Imej)</label>
+            <input type="file" id="oprFile" class="form-control" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+            <small style="color:var(--text-muted); font-size:0.75rem;">Fail akan disimpan secara automatik ke dalam Google Drive Kurikulum.</small>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Atau Masukkan Pautan Google Drive Sedia Ada</label>
+            <input type="url" id="oprUrlManual" class="form-control" placeholder="https://drive.google.com/file/d/...">
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Disediakan Oleh *</label>
+            <select id="oprPelapor" class="form-control" required></select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('oprModal')">Batal</button>
+          <button type="submit" id="btnSubmitOPR" class="btn-action-blue">
+            <i class="fas fa-save"></i> Muat Naik & Simpan OPR
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL MUAT NAIK FAIL PARTITION (NAMA FAIL -> KANDUNGAN FAIL -> NAMA DOKUMEN) -->
+  <div class="modal-overlay" id="failPartitionModal">
+    <div class="modal-box" style="max-width:650px;">
+      <div class="modal-header">
+        <div class="modal-title" id="failPartitionModalTitle"><i class="fas fa-folder-plus" style="color:var(--neon-blue); margin-right:8px;"></i>Muat Naik Dokumen Fail</div>
+        <button class="close-modal-btn" onclick="closeModal('failPartitionModal')">&times;</button>
+      </div>
+      <form id="formFailPartition" onsubmit="handleFailPartitionSubmit(event)">
+        <input type="hidden" id="partTargetType" value="panitia">
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Sesi Persekolahan *</label>
+            <select id="partSesi" class="form-control" required></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" id="partEntityLabel">Nama Panitia *</label>
+            <select id="partEntityName" class="form-control" required></select>
+          </div>
+
+          <!-- 1. NAMA FAIL -->
+          <div class="form-group full-width">
+            <label class="form-label">Nama Fail *</label>
+            <input type="text" id="partNamaFail" class="form-control" list="listNamaFailDatalist" placeholder="Pilih atau taip Nama Fail (cth: 1. FAIL INDUK)" required oninput="handleNamaFailSelect(this.value)" onchange="handleNamaFailSelect(this.value)">
+            <datalist id="listNamaFailDatalist"></datalist>
+          </div>
+
+          <!-- 2. KANDUNGAN FAIL (SUB-INDEKS DARI NAMA FAIL) -->
+          <div class="form-group full-width">
+            <label class="form-label">Kandungan Fail</label>
+            <input type="text" id="partKandunganFail" class="form-control" list="listKandunganFailDatalist" placeholder="Pilih kandungan fail atau taip sendiri">
+            <datalist id="listKandunganFailDatalist"></datalist>
+            <small style="color:var(--neon-accent); font-size:0.75rem;" id="subFailHintText">Pilihan kandungan fail akan ditapis automatik mengikut Nama Fail di atas.</small>
+          </div>
+
+          <!-- 3. NAMA DOKUMEN -->
+          <div class="form-group full-width">
+            <label class="form-label">Nama Dokumen *</label>
+            <input type="text" id="partNamaDokumen" class="form-control" list="listNamaDokumenDatalist" placeholder="Contoh: Surat Panggilan Mesyuarat Panitia Bil 1/2026" required>
+            <datalist id="listNamaDokumenDatalist"></datalist>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Pilih Dokumen (PDF / Word / Imej)</label>
+            <input type="file" id="partFile" class="form-control" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+            <small style="color:var(--text-muted); font-size:0.75rem;">Fail akan automatik disimpan ke dalam Folder Drive Kurikulum.</small>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Atau Masukkan Pautan Google Drive Sedia Ada</label>
+            <input type="url" id="partUrlManual" class="form-control" placeholder="https://drive.google.com/file/d/...">
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Dimuat Naik Oleh *</label>
+            <select id="partPelapor" class="form-control" required></select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('failPartitionModal')">Batal</button>
+          <button type="submit" id="btnSubmitPartition" class="btn-action-blue">
+            <i class="fas fa-save"></i> Muat Naik & Simpan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL PANITIA -->
+  <div class="modal-overlay" id="panitiaModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-book-open" style="color:var(--neon-blue); margin-right:8px;"></i>Senarai Panitia Mata Pelajaran</div>
+        <button class="close-modal-btn" onclick="closeModal('panitiaModal')">&times;</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">Klik pada mana-mana panitia untuk membuka folder Google Drive panitia berkenaan.</p>
+      <div class="submodal-grid" id="panitiaCardsContainer"></div>
+    </div>
+  </div>
+
+  <!-- MODAL UNIT -->
+  <div class="modal-overlay" id="unitModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-layer-group" style="color:var(--neon-blue); margin-right:8px;"></i>Senarai Unit Kurikulum</div>
+        <button class="close-modal-btn" onclick="closeModal('unitModal')">&times;</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">Klik pada mana-mana unit untuk membuka folder Google Drive unit kurikulum.</p>
+      <div class="submodal-grid" id="unitCardsContainer"></div>
+    </div>
+  </div>
+
+  <!-- MODAL PBD / PBS -->
+  <div class="modal-overlay" id="pbdModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-chart-pie" style="color:var(--neon-blue); margin-right:8px;"></i>Pengurusan PBD / PBS</div>
+        <button class="close-modal-btn" onclick="closeModal('pbdModal')">&times;</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">Klik pada kad untuk ke pautan berkaitan</p>
+      <div class="submodal-grid" id="pbdCardsContainer"></div>
+    </div>
+  </div>
+
+  <!-- MODAL BORANG LAPORAN PROGRAM -->
+  <div class="modal-overlay" id="laporanModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-edit" style="color:var(--neon-blue); margin-right:8px;"></i>Borang Laporan Program Kurikulum</div>
+        <button class="close-modal-btn" onclick="closeModal('laporanModal')">&times;</button>
+      </div>
+      <form id="formLaporan" onsubmit="handleLaporanSubmit(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Sesi Persekolahan *</label>
+            <select id="formSesi" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit / Panitia Kurikulum *</label>
+            <select id="formUnit" class="form-control" required>
+              <option value="">-- Pilih Unit / Panitia --</option>
+              <optgroup label="Unit Kurikulum" id="optUnitGroup"></optgroup>
+              <optgroup label="Panitia Mata Pelajaran" id="optPanitiaGroup"></optgroup>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Tajuk Aktiviti / Program *</label>
+            <input type="text" id="formTajuk" class="form-control" placeholder="Contoh: Bengkel Teknik Menjawab Soalan Sains" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tarikh Program *</label>
+            <input type="date" id="formTarikh" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Masa</label>
+            <input type="time" id="formMasa" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tempat *</label>
+            <input type="text" id="formTempat" class="form-control" placeholder="Contoh: Makmal Komputer" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Peringkat *</label>
+            <select id="formPeringkat" class="form-control" required></select>
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Objektif *</label>
+            <textarea id="formObjektif" class="form-control" rows="2" placeholder="Objektif program" required></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Penerangan Aktiviti *</label>
+            <textarea id="formAktiviti" class="form-control" rows="3" placeholder="Penerangan aktiviti program" required></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Isu / Masalah / Cadangan Penambahbaikan</label>
+            <textarea id="formIsu" class="form-control" rows="2" placeholder="Isu atau cadangan masa hadapan"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bil. Murid Terlibat</label>
+            <input type="number" id="formBilMurid" class="form-control" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bil. Guru Terlibat</label>
+            <input type="number" id="formBilGuru" class="form-control" placeholder="0">
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Pautan Bahan Berkaitan (Google Drive / Nota)</label>
+            <input type="url" id="formBahan" class="form-control" placeholder="https://drive.google.com/...">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Muat Naik Gambar 1</label>
+            <input type="file" id="fileGambar1" class="form-control" accept="image/*">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Muat Naik Gambar 2</label>
+            <input type="file" id="fileGambar2" class="form-control" accept="image/*">
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Muat Naik Gambar 3</label>
+            <input type="file" id="fileGambar3" class="form-control" accept="image/*">
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Laporan Disediakan Oleh *</label>
+            <select id="formPelapor" class="form-control" required></select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('laporanModal')">Batal</button>
+          <button type="submit" id="btnSubmitLaporan" class="btn-action-blue">
+            <i class="fas fa-save"></i> Simpan Laporan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL MUAT NAIK DOKUMEN PDF & GAMBAR INDUK -->
+  <div class="modal-overlay" id="uploadModal">
+    <div class="modal-box" style="max-width:550px;">
+      <div class="modal-header">
+        <div class="modal-title" id="uploadModalTitle">Muat Naik Fail</div>
+        <button class="close-modal-btn" onclick="closeModal('uploadModal')">&times;</button>
+      </div>
+      <form id="formUpload" onsubmit="handleUploadSubmit(event)">
+        <input type="hidden" id="uploadTargetSheet">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label">Sesi Persekolahan / Tahun *</label>
+          <select id="uploadTahun" class="form-control" required></select>
+        </div>
+        <div class="form-group" id="groupPerkaraMinit" style="margin-bottom:12px; display:none;">
+          <label class="form-label">Perkara / Tajuk Mesyuarat *</label>
+          <input type="text" id="uploadPerkara" class="form-control" placeholder="Contoh: Mesyuarat Panitia Bil 1/2026">
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label">Pilih Fail (PDF / Imej PNG, JPG, JPEG)</label>
+          <input type="file" id="uploadPdfFile" class="form-control" accept=".pdf,.png,.jpg,.jpeg">
+          <small style="color:var(--text-muted); font-size:0.75rem;">Menerima dokumen PDF atau fail gambar imej.</small>
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label">Atau Masukkan Pautan Google Drive Sedia Ada</label>
+          <input type="url" id="uploadUrlManual" class="form-control" placeholder="https://drive.google.com/file/d/...">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('uploadModal')">Batal</button>
+          <button type="submit" id="btnSubmitUpload" class="btn-action-blue">
+            <i class="fas fa-upload"></i> Muat Naik & Simpan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL CETAK ONE-PAGE REPORT -->
+  <div class="modal-overlay" id="viewReportModal">
+    <div class="modal-box" style="max-width:850px;">
+      <div class="modal-header no-print">
+        <div class="modal-title"><i class="fas fa-file-invoice"></i> Paparan Laporan Program</div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-action-blue" onclick="window.print()"><i class="fas fa-print"></i> Cetak / Simpan PDF</button>
+          <button class="close-modal-btn" onclick="closeModal('viewReportModal')">&times;</button>
+        </div>
+      </div>
+      
+      <div id="printableArea" class="printable-report">
+        <div class="report-header">
+          <h2 style="font-size:1.2rem; text-transform:uppercase;">SEKOLAH KEBANGSAAN MANTIN</h2>
+          <h3 style="font-size:1rem; font-weight:700;">LAPORAN PROGRAM KURIKULUM</h3>
+          <p style="font-size:0.85rem;" id="rptHeaderSub">Sesi Persekolahan</p>
+        </div>
+
+        <table class="report-table">
+          <tr><th>UNIT / PANITIA</th><td id="rptUnit">-</td></tr>
+          <tr><th>TAJUK PROGRAM</th><td id="rptTajuk" style="font-weight:700;">-</td></tr>
+          <tr><th>TARIKH & MASA</th><td id="rptTarikhMasa">-</td></tr>
+          <tr><th>TEMPAT</th><td id="rptTempat">-</td></tr>
+          <tr><th>PERINGKAT</th><td id="rptPeringkat">-</td></tr>
+          <tr><th>PENGLIBATAN</th><td id="rptPenglibatan">-</td></tr>
+          <tr><th>OBJEKTIF</th><td id="rptObjektif" style="white-space:pre-wrap;">-</td></tr>
+          <tr><th>RINGKASAN AKTIVITI</th><td id="rptAktiviti" style="white-space:pre-wrap;">-</td></tr>
+          <tr><th>ISU & CADANGAN</th><td id="rptIsu" style="white-space:pre-wrap;">-</td></tr>
+          <tr><th>PAUTAN BAHAN</th><td id="rptBahan">-</td></tr>
+        </table>
+
+        <div>
+          <div style="font-weight:700; font-size:0.85rem; margin-bottom:6px;">RAKAMAN GAMBAR AKTIVITI:</div>
+          <div class="report-images" id="rptImagesContainer"></div>
+        </div>
+
+        <div style="margin-top:30px; display:flex; justify-content:space-between;">
+          <div style="font-size:0.85rem;">
+            <p>Disediakan Oleh:</p>
+            <br><br>
+            <p style="font-weight:700; text-decoration:underline;" id="rptDisediakan">-</p>
+            <p>Guru SK Mantin</p>
+          </div>
+          <div style="font-size:0.85rem; text-align:right;">
+            <p>Disahkan Oleh:</p>
+            <br><br>
+            <p style="font-weight:700; text-decoration:underline;">..............................................</p>
+            <p>Guru Besar / GPK Kurikulum</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastNotification" class="toast-msg"></div>
+
+  <script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZLqcWHJ1aWf8AKH7_6qLbiJcsWu3aZYuQqb5NZlONVKRsMBLkr-slOhgpSxkLU001QA/exec";
+
+    const activeUser = SemanesAuth.getUser();
+    if (!activeUser || !SemanesAuth.getToken()) {
+      window.location.href = "../login.html";
+    } else {
+      document.getElementById("navUserNama").innerText = activeUser.nama || "Guru SK Mantin";
+      SemanesAuth.verify(false, "../login.html");
+    }
+
+    let globalKurikulumData = null;
+
+    function formatIconUrl(url) {
+      if (!url) return '';
+      if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+        const match = url.match(/[-\w]{25,}/);
+        if (match) {
+          return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000`;
+        }
+      }
+      return url;
+    }
+
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toastNotification');
+      t.innerText = msg;
+      t.style.borderLeftColor = isError ? '#ef4444' : '#06b6d4';
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 4000);
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (activeBtn) activeBtn.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) { resolve(null); return; }
+        const reader = new FileReader();
+        reader.onload = () => {
+          const raw = reader.result;
+          resolve({
+            name: file.name,
+            type: file.type,
+            base64: raw.split(',')[1]
+          });
+        };
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    window.addEventListener('load', fetchKurikulumData);
+
+    const CACHE_KEY_LOCAL = "semanes_kurikulum_cache";
+
+    async function fetchKurikulumData() {
+      const localSaved = localStorage.getItem(CACHE_KEY_LOCAL);
+      if (localSaved) {
+        try {
+          const cachedJSON = JSON.parse(localSaved);
+          globalKurikulumData = cachedJSON;
+          renderUI(cachedJSON);
+        } catch (e) {}
+      }
+
+      try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+          method: 'GET',
+          mode: 'cors',
+          redirect: 'follow'
+        });
+        const freshData = await response.json();
+        if (freshData.success) {
+          // Gabungkan pilihan dropdown (Data Sekolah, Data Kurikulum, Data Guru) daripada SUPABASE
+          try {
+            const [pilihanMap, guruList] = await Promise.all([
+              SemanesDB.getPilihanMap(),
+              SemanesDB.getGuruList()
+            ]);
+            const sbOpts = SemanesDB.buildDropdownOptions(pilihanMap, guruList);
+            freshData.options = Object.assign({}, freshData.options || {}, {
+              guru: sbOpts.guru.length ? sbOpts.guru : (freshData.options?.guru || []),
+              sesi: sbOpts.sesiPersekolahan.length ? sbOpts.sesiPersekolahan : (freshData.options?.sesi || []),
+              peringkat: sbOpts.peringkat.length ? sbOpts.peringkat : (freshData.options?.peringkat || []),
+              panitiaNames: sbOpts.panitiaNames.length ? sbOpts.panitiaNames : (freshData.options?.panitiaNames || []),
+              unitNames: sbOpts.unitNames.length ? sbOpts.unitNames : (freshData.options?.unitNames || []),
+              namaFailList: sbOpts.namaFailList.length ? sbOpts.namaFailList : (freshData.options?.namaFailList || []),
+              kandunganFailList: sbOpts.kandunganFailList.length ? sbOpts.kandunganFailList : (freshData.options?.kandunganFailList || []),
+              namaDokumenList: sbOpts.namaDokumenList.length ? sbOpts.namaDokumenList : (freshData.options?.namaDokumenList || [])
+            });
+          } catch (sbErr) {
+            console.warn("Sandaran options GAS digunakan (Kurikulum):", sbErr);
+          }
+          globalKurikulumData = freshData;
+          localStorage.setItem(CACHE_KEY_LOCAL, JSON.stringify(freshData));
+          renderUI(freshData);
+        }
+      } catch (err) {
+        console.warn("Rangkaian lambat, memaparkan data cache:", err);
+        if (!localSaved) {
+          showToast("Ralat menyambung ke pangkalan data.", true);
+        }
+      }
+    }
+
+    function renderUI(data) {
+      // 1. Menu Grid Utama
+      const menuContainer = document.getElementById('menuGridContainer');
+      menuContainer.innerHTML = '';
+      (data.menu || []).forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'menu-card';
+
+        let iconHtml = '';
+        if (item.icon && (item.icon.startsWith('http') || item.icon.includes('/'))) {
+          const optimizedUrl = formatIconUrl(item.icon);
+          iconHtml = `<img src="${optimizedUrl}" alt="${item.nama}" loading="lazy">`;
+        } else {
+          let iconClass = 'fas fa-graduation-cap';
+          if (item.nama.includes('eRPH')) iconClass = 'fas fa-book-reader';
+          else if (item.nama.includes('Jadual')) iconClass = 'fas fa-calendar-alt';
+          else if (item.nama.includes('PBD') || item.nama.includes('PBS')) iconClass = 'fas fa-chart-pie';
+          else if (item.nama.includes('Panitia')) iconClass = 'fas fa-chalkboard-teacher';
+          else if (item.nama.includes('Unit')) iconClass = 'fas fa-cubes';
+          iconHtml = `<i class="${iconClass}"></i>`;
+        }
+
+        div.innerHTML = `
+          <div class="icon-box">${iconHtml}</div>
+          <div class="menu-card-title">${item.nama}</div>
+        `;
+
+        div.addEventListener('click', () => {
+          if (item.nama.includes('Panitia')) {
+            openPanitiaModal();
+          } else if (item.nama.includes('Unit')) {
+            openUnitModal();
+          } else if (item.nama.includes('PBD') || item.nama.includes('PBS')) {
+            openPbdModal();
+          } else if (item.link && item.link.trim() !== '') {
+            window.open(item.link, '_blank');
+          } else {
+            showToast("Pautan sedang dikemaskini.");
+          }
+        });
+
+        menuContainer.appendChild(div);
+      });
+
+      // 2. Sub-Modal Panitia & Unit Cards
+      const panitiaBox = document.getElementById('panitiaCardsContainer');
+      panitiaBox.innerHTML = '';
+      (data.panitia || []).forEach(p => {
+        const a = document.createElement('a');
+        a.className = 'sub-card';
+        a.href = p.link || '#';
+        a.target = '_blank';
+        a.innerHTML = `<div class="sub-card-icon"><i class="fas fa-folder-open"></i></div><div class="sub-card-title">${p.nama}</div>`;
+        panitiaBox.appendChild(a);
+      });
+
+      const unitBox = document.getElementById('unitCardsContainer');
+      unitBox.innerHTML = '';
+      (data.unitKurikulum || []).forEach(u => {
+        const a = document.createElement('a');
+        a.className = 'sub-card';
+        a.href = u.link || '#';
+        a.target = '_blank';
+        a.innerHTML = `<div class="sub-card-icon"><i class="fas fa-folder"></i></div><div class="sub-card-title">${u.nama}</div>`;
+        unitBox.appendChild(a);
+      });
+
+      // 3. Sub-Modal PBD / PBS
+      const pbdBox = document.getElementById('pbdCardsContainer');
+      pbdBox.innerHTML = '';
+      if (data.pbdPbs && data.pbdPbs.length > 0) {
+        data.pbdPbs.forEach(item => {
+          const a = document.createElement('a');
+          a.className = 'sub-card';
+          a.href = item.link || '#';
+          a.target = '_blank';
+          a.innerHTML = `<div class="sub-card-icon"><i class="fas fa-file-contract"></i></div><div class="sub-card-title">${item.nama}</div>`;
+          pbdBox.appendChild(a);
+        });
+      } else {
+        pbdBox.innerHTML = '<p style="color:#94a3b8; font-size:0.85rem;">Tiada data dalam helaian PBD PBS.</p>';
+      }
+
+      // 4. Fail Panitia & Fail Unit Kurikulum
+      renderFailPartitionTable('panitia', data.failPanitia || []);
+      renderFailPartitionTable('unit', data.failUnitKurikulum || []);
+
+      // 5. Fail OPR Table
+      renderOPRTable(data.opr || []);
+
+      // Filter Options Panitia & Unit
+      populateSelect('filterSesiPanitia', data.options.sesi, 'Semua Sesi');
+      populateSelect('filterSesiUnit', data.options.sesi, 'Semua Sesi');
+      populateSelect('filterNamaPanitia', data.options.panitiaNames, 'Semua Panitia');
+      populateSelect('filterNamaUnit', data.options.unitNames, 'Semua Unit');
+
+      // Ambil senarai Nama Fail (Lajur C)
+      const listNamaFailC = data.options.namaFailList || data.options.noFailList || [];
+      populateSelect('filterNamaFailPanitia', listNamaFailC, 'Semua Nama Fail');
+      populateSelect('filterNamaFailUnit', listNamaFailC, 'Semua Nama Fail');
+
+      populateSelect('filterSesiOPR', data.options.sesi, 'Semua Sesi');
+      const allPanitiaUnit = [...(data.options.unitNames || []), ...(data.options.panitiaNames || [])];
+      populateSelect('filterUnitOPR', [...new Set(allPanitiaUnit)], 'Semua Panitia / Unit');
+
+      // Datalist bagi Modal Muat Naik Fail:
+      populateDatalist('listNamaFailDatalist', listNamaFailC);
+      populateDatalist('listKandunganFailDatalist', data.options.kandunganFailList || data.options.kategoriList || []);
+      populateDatalist('listNamaDokumenDatalist', data.options.namaDokumenList || []);
+
+      // 6. Jadual Dokumen Induk
+      renderTable('pelanTableBody', data.pelanStrategik, ['no', 'tahun', 'url']);
+      renderTable('cartaTableBody', data.cartaOrganisasi, ['no', 'tahun', 'url']);
+      renderTable('minitTableBody', data.minitMesyuarat, ['bil', 'tahun', 'perkara', 'url']);
+
+      // 7. Jadual Laporan Program
+      renderLaporanTable(data.laporan);
+
+      // 8. Muatkan Pilihan Dropdown Sesi/Tahun & Borang
+      populateSelect('formSesi', data.options.sesi);
+      populateSelect('formPeringkat', data.options.peringkat);
+      populateSelect('formPelapor', data.options.guru);
+      populateSelect('partPelapor', data.options.guru);
+      populateSelect('partSesi', data.options.sesi);
+
+      populateSelect('oprSesi', data.options.sesi);
+      populateSelect('oprPelapor', data.options.guru);
+      populateSelect('uploadTahun', data.options.sesi, '-- Pilih Sesi / Tahun --');
+
+      const optUnit = document.getElementById('optUnitGroup');
+      const oprOptUnit = document.getElementById('oprOptUnit');
+      optUnit.innerHTML = '';
+      oprOptUnit.innerHTML = '';
+      (data.options.unitNames || []).forEach(u => {
+        const opt1 = document.createElement('option');
+        opt1.value = u; opt1.innerText = u;
+        optUnit.appendChild(opt1);
+
+        const opt2 = document.createElement('option');
+        opt2.value = u; opt2.innerText = u;
+        oprOptUnit.appendChild(opt2);
+      });
+
+      const optPanitia = document.getElementById('optPanitiaGroup');
+      const oprOptPanitia = document.getElementById('oprOptPanitia');
+      optPanitia.innerHTML = '';
+      oprOptPanitia.innerHTML = '';
+      (data.options.panitiaNames || []).forEach(p => {
+        const opt1 = document.createElement('option');
+        opt1.value = p; opt1.innerText = p;
+        optPanitia.appendChild(opt1);
+
+        const opt2 = document.createElement('option');
+        opt2.value = p; opt2.innerText = p;
+        oprOptPanitia.appendChild(opt2);
+      });
+
+      if (activeUser && activeUser.nama) {
+        document.getElementById('formPelapor').value = activeUser.nama;
+        document.getElementById('partPelapor').value = activeUser.nama;
+        document.getElementById('oprPelapor').value = activeUser.nama;
+      }
+    }
+
+    // --- LOGIK PENAPISAN KANDUNGAN FAIL (SUB-INDEX) MENGIKUT NAMA FAIL ---
+    function handleNamaFailSelect(val) {
+      if (!globalKurikulumData || !globalKurikulumData.options) return;
+      const allKandungan = globalKurikulumData.options.kandunganFailList || globalKurikulumData.options.kategoriList || [];
+      const hint = document.getElementById('subFailHintText');
+
+      if (!val || !val.trim()) {
+        populateDatalist('listKandunganFailDatalist', allKandungan);
+        if (hint) hint.innerText = "Pilihan kandungan fail akan ditapis automatik mengikut Nama Fail di atas.";
+        return;
+      }
+
+      const cleanVal = val.trim();
+      const numMatch = cleanVal.match(/^(\d+)/);
+
+      let filteredKandungan = allKandungan;
+      if (numMatch) {
+        const prefixNum = numMatch[1] + ".";
+        filteredKandungan = allKandungan.filter(item => {
+          const str = item.toString().trim();
+          return str.startsWith(prefixNum);
+        });
+
+        if (hint) {
+          hint.innerText = filteredKandungan.length > 0 
+            ? `Memaparkan sub-fail berkaitan (${filteredKandungan.length} item).`
+            : `Tiada sub-fail berkaitan nombor ${numMatch[1]}. Anda boleh menaip secara manual.`;
+        }
+      }
+
+      // Pastikan datalist listKandunganFailDatalist dikemas kini
+      populateDatalist('listKandunganFailDatalist', filteredKandungan.length > 0 ? filteredKandungan : allKandungan);
+    }
+
+    function renderOPRTable(list) {
+      const tb = document.getElementById('oprTableBody');
+      tb.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        tb.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Tiada rekod fail OPR dimuat naik lagi.</td></tr>`;
+        return;
+      }
+
+      list.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.sesi || '-'}</td>
+          <td><strong style="color:var(--neon-accent);">${r.panitiaUnit || '-'}</strong></td>
+          <td style="font-weight:600;">${r.tajuk || '-'}</td>
+          <td>${r.disediakanOleh || '-'}</td>
+          <td style="text-align:center;">
+            ${r.url ? `<a href="${r.url}" target="_blank" class="btn-link-file"><i class="fas fa-file-alt"></i> Buka OPR</a>` : '<span style="color:#94a3b8;">-</span>'}
+          </td>
+        `;
+        tb.appendChild(tr);
+      });
+    }
+
+    function filterOPRTable() {
+      if (!globalKurikulumData || !globalKurikulumData.opr) return;
+      const sesiFilter = document.getElementById('filterSesiOPR').value;
+      const unitFilter = document.getElementById('filterUnitOPR').value;
+      const searchTxt = document.getElementById('searchOPR').value.toLowerCase();
+
+      const filtered = globalKurikulumData.opr.filter(item => {
+        const matchSesi = !sesiFilter || item.sesi === sesiFilter;
+        const matchUnit = !unitFilter || item.panitiaUnit === unitFilter;
+        const matchSearch = !searchTxt || (item.tajuk && item.tajuk.toLowerCase().includes(searchTxt));
+        return matchSesi && matchUnit && matchSearch;
+      });
+
+      renderOPRTable(filtered);
+    }
+
+    function openOPRModal() {
+      openModal('oprModal');
+    }
+
+    async function handleOPRSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitOPR');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat naik OPR ke Drive...';
+
+      const fileInput = document.getElementById('oprFile').files[0];
+      const urlManual = document.getElementById('oprUrlManual').value.trim();
+
+      if (!fileInput && !urlManual) {
+        showToast("Sila pilih fail dokumen OPR atau masukkan pautan Google Drive.", true);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Muat Naik & Simpan OPR';
+        return;
+      }
+
+      try {
+        let fileData = null;
+        if (fileInput) {
+          fileData = await fileToBase64(fileInput);
+        }
+
+        const payload = {
+          action: 'simpan_opr',
+          data: {
+            sesi: document.getElementById('oprSesi').value,
+            panitiaUnit: document.getElementById('oprPanitiaUnit').value,
+            tajuk: document.getElementById('oprTajuk').value,
+            file: fileData,
+            urlManual: urlManual,
+            disediakanOleh: document.getElementById('oprPelapor').value
+          }
+        };
+
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Muat Naik & Simpan OPR';
+
+        if (result.success) {
+          showToast('Fail OPR berjaya dimuat naik & direkodkan!');
+          closeModal('oprModal');
+          document.getElementById('formOPR').reset();
+          fetchKurikulumData();
+        } else {
+          showToast('Ralat: ' + result.message, true);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Muat Naik & Simpan OPR';
+        showToast('Ralat sambungan: ' + err.toString(), true);
+      }
+    }
+
+    // Paparan Jadual Fail Partition: Sesi, Panitia/Unit, Nama Fail, Kandungan Fail, Nama Dokumen
+    function renderFailPartitionTable(type, list) {
+      const containerId = type === 'panitia' ? 'failPanitiaTableBody' : 'failUnitTableBody';
+      const tb = document.getElementById(containerId);
+      tb.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        tb.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">Tiada rekod fail disimpan lagi.</td></tr>`;
+        return;
+      }
+
+      list.forEach(r => {
+        const tr = document.createElement('tr');
+        const entityVal = type === 'panitia' ? (r.panitia || '-') : (r.unit || '-');
+        tr.innerHTML = `
+          <td>${r.sesi || '-'}</td>
+          <td><strong>${entityVal}</strong></td>
+          <td><span class="badge-no-fail">${r.noFail || '-'}</span></td>
+          <td>${r.kategori ? `<span style="font-weight:600; color:var(--text-main);">${r.kategori}</span>` : '-'}</td>
+          <td>${r.namaDokumen || '-'}</td>
+          <td>${r.dimuatNaikOleh || '-'}</td>
+          <td style="text-align:center;">
+            ${r.url ? `<a href="${r.url}" target="_blank" class="btn-link-file"><i class="fas fa-external-link-alt"></i> Buka Fail</a>` : '<span style="color:#94a3b8;">-</span>'}
+          </td>
+        `;
+        tb.appendChild(tr);
+      });
+    }
+
+    function filterFailTable(type) {
+      if (!globalKurikulumData) return;
+      const isPanitia = type === 'panitia';
+      const rawList = isPanitia ? globalKurikulumData.failPanitia : globalKurikulumData.failUnitKurikulum;
+      if (!rawList) return;
+
+      const sesiFilter = document.getElementById(isPanitia ? 'filterSesiPanitia' : 'filterSesiUnit').value;
+      const entityFilter = document.getElementById(isPanitia ? 'filterNamaPanitia' : 'filterNamaUnit').value;
+      const namaFailFilter = document.getElementById(isPanitia ? 'filterNamaFailPanitia' : 'filterNamaFailUnit').value;
+      const searchTxt = document.getElementById(isPanitia ? 'searchFailPanitia' : 'searchFailUnit').value.toLowerCase();
+
+      const filtered = rawList.filter(item => {
+        const itemEntity = isPanitia ? item.panitia : item.unit;
+        const matchSesi = !sesiFilter || item.sesi === sesiFilter;
+        const matchEntity = !entityFilter || itemEntity === entityFilter;
+        const matchNamaFail = !namaFailFilter || (item.noFail && item.noFail === namaFailFilter);
+
+        const matchSearch = !searchTxt || 
+          (item.namaDokumen && item.namaDokumen.toLowerCase().includes(searchTxt)) ||
+          (item.noFail && item.noFail.toLowerCase().includes(searchTxt)) ||
+          (item.kategori && item.kategori.toLowerCase().includes(searchTxt));
+
+        return matchSesi && matchEntity && matchNamaFail && matchSearch;
+      });
+
+      renderFailPartitionTable(type, filtered);
+    }
+
+    function openFailPartitionModal(type) {
+      document.getElementById('partTargetType').value = type;
+      const isPanitia = type === 'panitia';
+      
+      document.getElementById('failPartitionModalTitle').innerHTML = isPanitia 
+        ? '<i class="fas fa-folder-plus" style="color:var(--neon-blue); margin-right:8px;"></i>Muat Naik Fail Panitia'
+        : '<i class="fas fa-folder-plus" style="color:var(--neon-blue); margin-right:8px;"></i>Muat Naik Fail Unit Kurikulum';
+
+      document.getElementById('partEntityLabel').innerText = isPanitia ? 'Nama Panitia *' : 'Nama Unit Kurikulum *';
+
+      const entitySelect = document.getElementById('partEntityName');
+      entitySelect.innerHTML = '<option value="">-- Pilih --</option>';
+      const list = isPanitia ? (globalKurikulumData.options.panitiaNames || []) : (globalKurikulumData.options.unitNames || []);
+      list.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item; opt.innerText = item;
+        entitySelect.appendChild(opt);
+      });
+
+      document.getElementById('partNamaFail').value = '';
+      document.getElementById('partKandunganFail').value = '';
+      document.getElementById('partNamaDokumen').value = '';
+      handleNamaFailSelect('');
+
+      openModal('failPartitionModal');
+    }
+
+    async function handleFailPartitionSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitPartition');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat naik ke Drive...';
+
+      const targetType = document.getElementById('partTargetType').value;
+      const fileInput = document.getElementById('partFile').files[0];
+      const urlManual = document.getElementById('partUrlManual').value.trim();
+
+      if (!fileInput && !urlManual) {
+        showToast("Sila pilih fail untuk dimuat naik atau masukkan pautan Google Drive.", true);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Muat Naik & Simpan';
+        return;
+      }
+
+      try {
+        let fileData = null;
+        if (fileInput) {
+          fileData = await fileToBase64(fileInput);
+        }
+
+        const payload = {
+          action: 'simpan_fail_partition',
+          targetType: targetType,
+          data: {
+            sesi: document.getElementById('partSesi').value,
+            entityName: document.getElementById('partEntityName').value,
+            noFail: document.getElementById('partNamaFail').value,
+            kategori: document.getElementById('partKandunganFail').value,
+            namaDokumen: document.getElementById('partNamaDokumen').value,
+            file: fileData,
+            urlManual: urlManual,
+            dimuatNaikOleh: document.getElementById('partPelapor').value
+          }
+        };
+
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Muat Naik & Simpan';
+
+        if (result.success) {
+          showToast('Dokumen fail berjaya dimuat naik & direkodkan!');
+          closeModal('failPartitionModal');
+          document.getElementById('formFailPartition').reset();
+          fetchKurikulumData();
+        } else {
+          showToast('Ralat: ' + result.message, true);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Muat Naik & Simpan';
+        showToast('Ralat sambungan: ' + err.toString(), true);
+      }
+    }
+
+    function renderTable(containerId, list, keys) {
+      const tb = document.getElementById(containerId);
+      tb.innerHTML = '';
+      if (!list || list.length === 0) {
+        tb.innerHTML = `<tr><td colspan="${keys.length}" style="text-align:center; color:#94a3b8;">Tiada rekod fail.</td></tr>`;
+        return;
+      }
+      list.forEach(r => {
+        const tr = document.createElement('tr');
+        keys.forEach(k => {
+          const td = document.createElement('td');
+          if (k === 'url') {
+            td.innerHTML = r[k] ? `<a href="${r[k]}" target="_blank" class="btn-link-file"><i class="fas fa-file-alt"></i> Buka Dokumen</a>` : '<span style="color:#94a3b8;">-</span>';
+          } else {
+            td.innerText = r[k] || '-';
+          }
+          tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+      });
+    }
+
+    function renderLaporanTable(list) {
+      const tb = document.getElementById('laporanTableBody');
+      tb.innerHTML = '';
+      if (!list || list.length === 0) {
+        tb.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">Tiada laporan program didaftarkan lagi.</td></tr>`;
+        return;
+      }
+      list.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.tarikh || '-'}</td>
+          <td><span style="font-weight:700; color:var(--neon-accent);">${item.unit}</span></td>
+          <td style="font-weight:600;">${item.tajuk}</td>
+          <td>${item.peringkat || '-'}</td>
+          <td>${item.disediakanOleh || '-'}</td>
+          <td style="text-align:center;">
+            <button class="btn-link-file" onclick="viewReportDetails(${item.id})">
+              <i class="fas fa-eye"></i> Buka / Print
+            </button>
+          </td>
+        `;
+        tb.appendChild(tr);
+      });
+    }
+
+    function populateSelect(id, items, defaultLabel = '-- Pilih --') {
+      const el = document.getElementById(id);
+      if (!el || !items) return;
+      el.innerHTML = `<option value="">${defaultLabel}</option>`;
+      items.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v; opt.innerText = v;
+        el.appendChild(opt);
+      });
+    }
+
+    function populateDatalist(id, items) {
+      const el = document.getElementById(id);
+      if (!el || !items) return;
+      el.innerHTML = '';
+      items.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        el.appendChild(opt);
+      });
+    }
+
+    function openPanitiaModal() { openModal('panitiaModal'); }
+    function openUnitModal() { openModal('unitModal'); }
+    function openPbdModal() { openModal('pbdModal'); }
+    function openLaporanModal() { openModal('laporanModal'); }
+
+    // Hantar Laporan Program
+    async function handleLaporanSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitLaporan');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat naik & Menyimpan...';
+
+      try {
+        const f1 = document.getElementById('fileGambar1').files[0];
+        const f2 = document.getElementById('fileGambar2').files[0];
+        const f3 = document.getElementById('fileGambar3').files[0];
+
+        const [g1File, g2File, g3File] = await Promise.all([
+          fileToBase64(f1),
+          fileToBase64(f2),
+          fileToBase64(f3)
+        ]);
+
+        const formData = {
+          sesi: document.getElementById('formSesi').value,
+          unit: document.getElementById('formUnit').value,
+          tajuk: document.getElementById('formTajuk').value,
+          tarikh: document.getElementById('formTarikh').value,
+          masa: document.getElementById('formMasa').value,
+          tempat: document.getElementById('formTempat').value,
+          peringkat: document.getElementById('formPeringkat').value,
+          objektif: document.getElementById('formObjektif').value,
+          aktiviti: document.getElementById('formAktiviti').value,
+          isu: document.getElementById('formIsu').value,
+          bilMurid: document.getElementById('formBilMurid').value,
+          bilGuru: document.getElementById('formBilGuru').value,
+          bahanPautan: document.getElementById('formBahan').value,
+          gambar1File: g1File,
+          gambar2File: g2File,
+          gambar3File: g3File,
+          disediakanOleh: document.getElementById('formPelapor').value
+        };
+
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'simpan_laporan_kurikulum',
+            formData: formData
+          })
+        });
+
+        const result = await res.json();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Simpan Laporan';
+
+        if (result.success) {
+          showToast('Laporan Program & gambar berjaya dimuat naik ke Drive!');
+          closeModal('laporanModal');
+          document.getElementById('formLaporan').reset();
+          fetchKurikulumData();
+        } else {
+          showToast('Ralat: ' + result.message, true);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Simpan Laporan';
+        showToast('Ralat sambungan: ' + err.toString(), true);
+      }
+    }
+
+    function openUploadModal(sheetName) {
+      document.getElementById('uploadTargetSheet').value = sheetName;
+      document.getElementById('uploadModalTitle').innerText = `Muat Naik Fail: ${sheetName}`;
+      document.getElementById('groupPerkaraMinit').style.display = (sheetName === 'Minit Mesyuarat') ? 'block' : 'none';
+      
+      if (globalKurikulumData && globalKurikulumData.options && globalKurikulumData.options.sesi) {
+        populateSelect('uploadTahun', globalKurikulumData.options.sesi, '-- Pilih Sesi / Tahun --');
+      }
+
+      openModal('uploadModal');
+    }
+
+    async function handleUploadSubmit(e) {
+      e.preventDefault();
+      const sheetName = document.getElementById('uploadTargetSheet').value;
+      const tahun = document.getElementById('uploadTahun').value;
+      const perkara = document.getElementById('uploadPerkara').value;
+      const fileInput = document.getElementById('uploadPdfFile').files[0];
+      const urlManual = document.getElementById('uploadUrlManual').value.trim();
+
+      if (!fileInput && !urlManual) {
+        showToast("Sila pilih fail atau masukkan pautan Google Drive.", true);
+        return;
+      }
+
+      const btn = document.getElementById('btnSubmitUpload');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat naik fail...';
+
+      try {
+        let fileData = null;
+        if (fileInput) {
+          fileData = await fileToBase64(fileInput);
+        }
+
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'simpan_fail_kurikulum',
+            sheetName: sheetName,
+            data: {
+              tahun: tahun,
+              perkara: perkara,
+              file: fileData,
+              urlManual: urlManual
+            }
+          })
+        });
+
+        const result = await res.json();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-upload"></i> Muat Naik & Simpan';
+
+        if (result.success) {
+          showToast('Fail berjaya dimuat naik dan direkodkan!');
+          closeModal('uploadModal');
+          document.getElementById('formUpload').reset();
+          fetchKurikulumData();
+        } else {
+          showToast('Ralat: ' + result.message, true);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-upload"></i> Muat Naik & Simpan';
+        showToast('Ralat sambungan: ' + err.toString(), true);
+      }
+    }
+
+    function viewReportDetails(id) {
+      const item = (globalKurikulumData.laporan || []).find(l => l.id === id);
+      if (!item) return;
+
+      document.getElementById('rptHeaderSub').innerText = `Sesi Persekolahan: ${item.sesi || 'Semasa'}`;
+      document.getElementById('rptUnit').innerText = item.unit || '-';
+      document.getElementById('rptTajuk').innerText = item.tajuk || '-';
+      document.getElementById('rptTarikhMasa').innerText = `${item.tarikh} ${item.masa ? `(${item.masa})` : ''}`;
+      document.getElementById('rptTempat').innerText = item.tempat || '-';
+      document.getElementById('rptPeringkat').innerText = item.peringkat || '-';
+      document.getElementById('rptPenglibatan').innerText = `Murid: ${item.bilMurid || '0'} orang | Guru: ${item.bilGuru || '0'} orang`;
+      document.getElementById('rptObjektif').innerText = item.objektif || '-';
+      document.getElementById('rptAktiviti').innerText = item.aktiviti || '-';
+      document.getElementById('rptIsu').innerText = item.isu || 'Tiada';
+      document.getElementById('rptBahan').innerHTML = item.bahanPautan ? `<a href="${item.bahanPautan}" target="_blank">${item.bahanPautan}</a>` : 'Tiada';
+      document.getElementById('rptDisediakan').innerText = item.disediakanOleh || 'Guru SK Mantin';
+
+      const imgBox = document.getElementById('rptImagesContainer');
+      imgBox.innerHTML = '';
+      const rawImgs = [item.gambar1, item.gambar2, item.gambar3].filter(g => g && g.startsWith('http'));
+
+      if (rawImgs.length === 0) {
+        imgBox.innerHTML = '<p style="font-size:0.8rem; color:#666;">Tiada rakaman gambar dilampirkan.</p>';
+      } else {
+        rawImgs.forEach(url => {
+          const directImgUrl = formatIconUrl(url);
+          const im = document.createElement('img');
+          im.src = directImgUrl;
+          im.alt = "Foto Laporan Aktiviti";
+          im.crossOrigin = "anonymous";
+          im.referrerPolicy = "no-referrer";
+          imgBox.appendChild(im);
+        });
+      }
+
+      openModal('viewReportModal');
+    }
+  </script>
+</body>
+</html>

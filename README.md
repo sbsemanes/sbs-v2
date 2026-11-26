@@ -1,1 +1,1 @@
-# sbs-v2
+# sistem-bersepadu-semanes
