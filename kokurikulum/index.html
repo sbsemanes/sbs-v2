@@ -1555,98 +1555,128 @@
         } catch (e) {}
       }
 
-      try {
-        const response = await fetch(APPS_SCRIPT_URL);
-        const data = await response.json();
-        if (data.success) {
-          // Gabungkan Data Murid, Data Guru & Data KOKO/Sekolah daripada SUPABASE
-          try {
-            const [pilihanMap, guruList, muridList] = await Promise.all([
-              SemanesDB.getPilihanMap(),
-              SemanesDB.getGuruList(),
-              SemanesDB.getMuridList()
-            ]);
-            const sbOpts = SemanesDB.buildDropdownOptions(pilihanMap, guruList);
+      // Jalankan panggilan Google Apps Script & Supabase secara SERENTAK supaya
+      // data murid/guru/pilihan Supabase tetap dimuatkan walaupun Apps Script perlahan/gagal
+      const [gasResSettled, sbResSettled] = await Promise.allSettled([
+        fetch(APPS_SCRIPT_URL).then(r => r.json()),
+        Promise.all([
+          SemanesDB.getPilihanMap(),
+          SemanesDB.getGuruList(),
+          SemanesDB.getMuridList()
+        ])
+      ]);
 
-            // Pemetaan Guru mengikut unit koko
-            const guruUnitMapping = {};
-            guruList.forEach(g => {
-              [g.uniform, g.persatuan, g.sukan, g.rumah_sukan].forEach(u => {
-                const unitName = (u || "").trim();
-                if (unitName) {
-                  if (!guruUnitMapping[unitName]) guruUnitMapping[unitName] = [];
-                  if (!guruUnitMapping[unitName].includes(g.nama_guru)) {
-                    guruUnitMapping[unitName].push(g.nama_guru);
-                  }
+      let data = (gasResSettled.status === 'fulfilled' && gasResSettled.value && gasResSettled.value.success)
+        ? gasResSettled.value
+        : (globalKokoData ? Object.assign({}, globalKokoData) : {
+            success: true,
+            efail: [],
+            laporanMingguan: [],
+            laporanPencapaian: [],
+            jawatankuasa: [],
+            kehadiranGuru: [],
+            failKOKO: [],
+            opr: [],
+            keahlianMurid: [],
+            muridMaster: [],
+            guruMaster: [],
+            guruUnitMapping: {},
+            statistikGuru: { totalTidakHadirKeseluruhan: 0, pecahanGuru: {}, senaraiTidakHadir: [] },
+            options: {}
+          });
+
+      const hasGas = (gasResSettled.status === 'fulfilled' && gasResSettled.value && gasResSettled.value.success);
+      const hasSb = (sbResSettled.status === 'fulfilled');
+
+      if (hasSb) {
+        try {
+          const [pilihanMap, guruList, muridList] = sbResSettled.value;
+          const sbOpts = SemanesDB.buildDropdownOptions(pilihanMap, guruList);
+
+          // Pemetaan Guru mengikut unit koko
+          const guruUnitMapping = {};
+          guruList.forEach(g => {
+            [g.uniform, g.persatuan, g.sukan, g.rumah_sukan].forEach(u => {
+              const unitName = (u || "").trim();
+              if (unitName) {
+                if (!guruUnitMapping[unitName]) guruUnitMapping[unitName] = [];
+                if (!guruUnitMapping[unitName].includes(g.nama_guru)) {
+                  guruUnitMapping[unitName].push(g.nama_guru);
                 }
-              });
-            });
-
-            // Sesi semasa dari Supabase (Data Sekolah) atau sandaran GAS
-            const sesiSemasa = (sbOpts.sesiPersekolahan && sbOpts.sesiPersekolahan[0]) || data.currentSesi || "";
-            if (sesiSemasa) data.currentSesi = sesiSemasa;
-
-            // Peta jumlah kehadiran murid dari Google Sheets (GAS) supaya tidak hilang apabila digabung dengan Supabase
-            const gasAttByName = {};
-            (data.keahlianMurid || []).forEach(gm => {
-              const key = (gm.nama || "").toUpperCase().trim();
-              if (key) gasAttByName[key] = gm;
-            });
-
-            const muridFormatted = muridList.map(m => {
-              const key = (m.nama_murid || "").toUpperCase().trim();
-              const gasRec = gasAttByName[key] || {};
-              return {
-                nama: m.nama_murid || "",
-                sesi: gasRec.sesi || sesiSemasa,
-                tahun: m.tahun || "",
-                kelas: m.kelas || "",
-                uniform: m.uniform || "",
-                persatuan: m.persatuan || "",
-                sukan: m.sukan || "",
-                rumahSukan: m.rumah_sukan || "",
-                attUniform: gasRec.attUniform || 0,
-                attPersatuan: gasRec.attPersatuan || 0,
-                attSukan: gasRec.attSukan || 0,
-                attRumahSukan: gasRec.attRumahSukan || 0,
-                totalHadir: gasRec.totalHadir || 0
-              };
-            });
-
-            const unitSemua = [...new Set([
-              ...sbOpts.uniform, ...sbOpts.persatuan, ...sbOpts.sukan, ...sbOpts.rumahSukan
-            ])];
-
-            data.guruMaster = sbOpts.guru.length ? sbOpts.guru : (data.guruMaster || []);
-            data.guruUnitMapping = Object.keys(guruUnitMapping).length ? guruUnitMapping : (data.guruUnitMapping || {});
-            data.muridMaster = muridFormatted.length ? muridFormatted : (data.muridMaster || []);
-            data.keahlianMurid = muridFormatted.length ? muridFormatted : (data.keahlianMurid || []);
-            data.options = Object.assign({}, data.options || {}, {
-              sesi: sbOpts.sesiPersekolahan.length ? sbOpts.sesiPersekolahan : (data.options?.sesi || []),
-              jawatan: sbOpts.jawatanKoko.length ? sbOpts.jawatanKoko : (data.options?.jawatan || []),
-              pencapaian: sbOpts.pencapaianKoko.length ? sbOpts.pencapaianKoko : (data.options?.pencapaian || []),
-              peringkat: sbOpts.peringkatKoko.length ? sbOpts.peringkatKoko : (data.options?.peringkat || []),
-              sivik: sbOpts.sivikKoko.length ? sbOpts.sivikKoko : (data.options?.sivik || []),
-              unitKokoSemua: unitSemua.length ? unitSemua : (data.options?.unitKokoSemua || []),
-              kategoriKoko: {
-                "Badan Beruniform": sbOpts.uniform,
-                "Kelab & Persatuan": sbOpts.persatuan,
-                "Sukan & Permainan": sbOpts.sukan,
-                "Rumah Sukan": sbOpts.rumahSukan
               }
             });
-          } catch (sbErr) {
-            console.warn("Sandaran master data GAS digunakan (Kokurikulum):", sbErr);
-          }
-          globalKokoData = data;
-          localStorage.setItem(CACHE_KEY_LOCAL, JSON.stringify(data));
-          renderUI(data);
-        } else {
-          showToast("Ralat data: " + data.error, true);
+          });
+
+          // Sesi semasa dari Supabase (Data Sekolah) atau sandaran GAS
+          const sesiSemasa = (sbOpts.sesiPersekolahan && sbOpts.sesiPersekolahan[0]) || data.currentSesi || "";
+          if (sesiSemasa) data.currentSesi = sesiSemasa;
+
+          // Peta jumlah kehadiran murid dari Google Sheets (GAS) supaya tidak hilang apabila digabung dengan Supabase
+          const gasAttByName = {};
+          (data.keahlianMurid || []).forEach(gm => {
+            const key = (gm.nama || "").toUpperCase().trim();
+            if (key) gasAttByName[key] = gm;
+          });
+
+          const muridFormatted = muridList.map(m => {
+            const key = (m.nama_murid || "").toUpperCase().trim();
+            const gasRec = gasAttByName[key] || {};
+            return {
+              nama: m.nama_murid || "",
+              sesi: gasRec.sesi || sesiSemasa,
+              tahun: m.tahun || "",
+              kelas: m.kelas || "",
+              uniform: m.uniform || "",
+              persatuan: m.persatuan || "",
+              sukan: m.sukan || "",
+              rumahSukan: m.rumah_sukan || "",
+              attUniform: gasRec.attUniform || 0,
+              attPersatuan: gasRec.attPersatuan || 0,
+              attSukan: gasRec.attSukan || 0,
+              attRumahSukan: gasRec.attRumahSukan || 0,
+              totalHadir: gasRec.totalHadir || 0
+            };
+          });
+
+          const unitSemua = [...new Set([
+            ...sbOpts.uniform, ...sbOpts.persatuan, ...sbOpts.sukan, ...sbOpts.rumahSukan
+          ])];
+
+          data.guruMaster = sbOpts.guru.length ? sbOpts.guru : (data.guruMaster || []);
+          data.guruUnitMapping = Object.keys(guruUnitMapping).length ? guruUnitMapping : (data.guruUnitMapping || {});
+          data.muridMaster = muridFormatted.length ? muridFormatted : (data.muridMaster || []);
+          data.keahlianMurid = muridFormatted.length ? muridFormatted : (data.keahlianMurid || []);
+          data.options = Object.assign({}, data.options || {}, {
+            sesi: sbOpts.sesiPersekolahan.length ? sbOpts.sesiPersekolahan : (data.options?.sesi || []),
+            jawatan: sbOpts.jawatanKoko.length ? sbOpts.jawatanKoko : (data.options?.jawatan || []),
+            pencapaian: sbOpts.pencapaianKoko.length ? sbOpts.pencapaianKoko : (data.options?.pencapaian || []),
+            peringkat: sbOpts.peringkatKoko.length ? sbOpts.peringkatKoko : (data.options?.peringkat || []),
+            sivik: sbOpts.sivikKoko.length ? sbOpts.sivikKoko : (data.options?.sivik || []),
+            unitKokoSemua: unitSemua.length ? unitSemua : (data.options?.unitKokoSemua || []),
+            noFailList: sbOpts.kokoNamaFail.length ? sbOpts.kokoNamaFail : (data.options?.noFailList || []),
+            kategoriList: sbOpts.kokoKandunganFail.length ? sbOpts.kokoKandunganFail : (data.options?.kategoriList || []),
+            namaDokumenList: sbOpts.kokoNamaDokumen.length ? sbOpts.kokoNamaDokumen : (data.options?.namaDokumenList || []),
+            kategoriKoko: {
+              "Badan Beruniform": sbOpts.uniform,
+              "Kelab & Persatuan": sbOpts.persatuan,
+              "Sukan & Permainan": sbOpts.sukan,
+              "Rumah Sukan": sbOpts.rumahSukan
+            }
+          });
+        } catch (sbErr) {
+          console.warn("Ralat memproses data Supabase (Kokurikulum):", sbErr);
         }
-      } catch (err) {
-        console.warn("Rangkaian lambat, memaparkan cache:", err);
-        if (!localSaved) showToast("Ralat menyambung ke pangkalan data.", true);
+      }
+
+      if (hasGas || hasSb) {
+        globalKokoData = data;
+        localStorage.setItem(CACHE_KEY_LOCAL, JSON.stringify(data));
+        renderUI(data);
+        if (!hasGas) {
+          showToast("Data murid & unit Supabase dimuatkan (Google Sheets lambat/offline).", true);
+        }
+      } else if (!localSaved) {
+        showToast("Ralat menyambung ke pangkalan data.", true);
       }
     }
 
@@ -1969,10 +1999,10 @@
       const m = globalKokoData.keahlianMurid[idx];
       const nama = m.nama.trim().toLowerCase();
 
-      const jwMurid = globalKokoData.jawatankuasa.filter(j => j.nama.trim().toLowerCase() === nama);
+      const jwMurid = (globalKokoData.jawatankuasa || []).filter(j => j.nama.trim().toLowerCase() === nama);
       const jwString = jwMurid.length > 0 ? jwMurid.map(j => `${j.jawatan} (${j.unit})`).join(', ') : 'Tiada';
 
-      const pMurid = globalKokoData.laporanPencapaian.filter(p => (p.peserta || '').toLowerCase().includes(nama));
+      const pMurid = (globalKokoData.laporanPencapaian || []).filter(p => (p.peserta || '').toLowerCase().includes(nama));
       const pString = pMurid.length > 0 ? pMurid.map(p => `${p.pencapaian} - ${p.program} (${p.peringkat})`).join('<br>') : 'Tiada penyertaan direkodkan';
 
       document.getElementById('pCardNama').innerText = m.nama;
@@ -2451,12 +2481,26 @@
         const div = document.createElement('div');
         div.className = 'checkbox-item';
         div.style.cssText = "display:flex; justify-content:space-between; padding:8px 12px; background:#fff; border-radius:8px; margin-bottom:4px; border:1px solid #f1f5f9;";
-        div.innerHTML = `
-          <label for="pck_peserta_${idx}" style="cursor:pointer; flex:1;">
-            <b>${m.nama}</b> <span style="color:#64748b;">(${m.tahun} ${m.kelas})</span>
-          </label>
-          <input type="checkbox" id="pck_peserta_${idx}" ${isChecked ? 'checked' : ''} onchange="handlePesertaToggle('${m.nama}', this.checked)">
-        `;
+
+        const lbl = document.createElement('label');
+        lbl.setAttribute('for', `pck_peserta_${idx}`);
+        lbl.style.cssText = "cursor:pointer; flex:1;";
+        const bEl = document.createElement('b');
+        bEl.textContent = m.nama;
+        const spanEl = document.createElement('span');
+        spanEl.style.color = '#64748b';
+        spanEl.textContent = ` (${m.tahun} ${m.kelas})`;
+        lbl.appendChild(bEl);
+        lbl.appendChild(spanEl);
+
+        const chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.id = `pck_peserta_${idx}`;
+        chk.checked = isChecked;
+        chk.addEventListener('change', () => handlePesertaToggle(m.nama, chk.checked));
+
+        div.appendChild(lbl);
+        div.appendChild(chk);
         container.appendChild(div);
       });
     }
@@ -2504,12 +2548,26 @@
         const div = document.createElement('div');
         div.className = 'checkbox-item';
         div.style.cssText = "display:flex; justify-content:space-between; padding:8px 12px; background:#fff; border-radius:8px; margin-bottom:4px; border:1px solid #f1f5f9;";
-        div.innerHTML = `
-          <label for="pck_jw_${idx}" style="cursor:pointer; flex:1;">
-            <b>${m.nama}</b> <span style="color:#64748b;">(${m.tahun} ${m.kelas})</span>
-          </label>
-          <input type="radio" name="jwMuridRadioPick" id="pck_jw_${idx}" onchange="handleJwRadioPick('${m.nama}', '${m.tahun}', '${m.kelas}')">
-        `;
+
+        const lbl = document.createElement('label');
+        lbl.setAttribute('for', `pck_jw_${idx}`);
+        lbl.style.cssText = "cursor:pointer; flex:1;";
+        const bEl = document.createElement('b');
+        bEl.textContent = m.nama;
+        const spanEl = document.createElement('span');
+        spanEl.style.color = '#64748b';
+        spanEl.textContent = ` (${m.tahun} ${m.kelas})`;
+        lbl.appendChild(bEl);
+        lbl.appendChild(spanEl);
+
+        const rad = document.createElement('input');
+        rad.type = 'radio';
+        rad.name = 'jwMuridRadioPick';
+        rad.id = `pck_jw_${idx}`;
+        rad.addEventListener('change', () => handleJwRadioPick(m.nama, m.tahun, m.kelas));
+
+        div.appendChild(lbl);
+        div.appendChild(rad);
         container.appendChild(div);
       });
     }
