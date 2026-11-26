@@ -1582,15 +1582,36 @@
               });
             });
 
-            const muridFormatted = muridList.map(m => ({
-              nama: m.nama_murid || "",
-              tahun: m.tahun || "",
-              kelas: m.kelas || "",
-              uniform: m.uniform || "",
-              persatuan: m.persatuan || "",
-              sukan: m.sukan || "",
-              rumahSukan: m.rumah_sukan || ""
-            }));
+            // Sesi semasa dari Supabase (Data Sekolah) atau sandaran GAS
+            const sesiSemasa = (sbOpts.sesiPersekolahan && sbOpts.sesiPersekolahan[0]) || data.currentSesi || "";
+            if (sesiSemasa) data.currentSesi = sesiSemasa;
+
+            // Peta jumlah kehadiran murid dari Google Sheets (GAS) supaya tidak hilang apabila digabung dengan Supabase
+            const gasAttByName = {};
+            (data.keahlianMurid || []).forEach(gm => {
+              const key = (gm.nama || "").toUpperCase().trim();
+              if (key) gasAttByName[key] = gm;
+            });
+
+            const muridFormatted = muridList.map(m => {
+              const key = (m.nama_murid || "").toUpperCase().trim();
+              const gasRec = gasAttByName[key] || {};
+              return {
+                nama: m.nama_murid || "",
+                sesi: gasRec.sesi || sesiSemasa,
+                tahun: m.tahun || "",
+                kelas: m.kelas || "",
+                uniform: m.uniform || "",
+                persatuan: m.persatuan || "",
+                sukan: m.sukan || "",
+                rumahSukan: m.rumah_sukan || "",
+                attUniform: gasRec.attUniform || 0,
+                attPersatuan: gasRec.attPersatuan || 0,
+                attSukan: gasRec.attSukan || 0,
+                attRumahSukan: gasRec.attRumahSukan || 0,
+                totalHadir: gasRec.totalHadir || 0
+              };
+            });
 
             const unitSemua = [...new Set([
               ...sbOpts.uniform, ...sbOpts.persatuan, ...sbOpts.sukan, ...sbOpts.rumahSukan
@@ -1608,7 +1629,7 @@
               sivik: sbOpts.sivikKoko.length ? sbOpts.sivikKoko : (data.options?.sivik || []),
               unitKokoSemua: unitSemua.length ? unitSemua : (data.options?.unitKokoSemua || []),
               kategoriKoko: {
-                "Unit Beruniform": sbOpts.uniform,
+                "Badan Beruniform": sbOpts.uniform,
                 "Kelab & Persatuan": sbOpts.persatuan,
                 "Sukan & Permainan": sbOpts.sukan,
                 "Rumah Sukan": sbOpts.rumahSukan
