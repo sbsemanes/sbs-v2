@@ -589,6 +589,8 @@
       z-index: 2000;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
 </head>
 <body>
 
@@ -726,11 +728,12 @@
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwy0W5NuWBb_dXmBWB4wb5zQ8o-mBz0uvlSNDe7Lz5pVQSbBKaol8IP9e1qjgwrpVztlA/exec";
 
     // KAWALAN KESELAMATAN: WAJIB LOG MASUK SEBELUM BUKA
-    const activeUser = JSON.parse(sessionStorage.getItem("semanes_user"));
-    if (!activeUser) {
+    const activeUser = SemanesAuth.getUser();
+    if (!activeUser || !SemanesAuth.getToken()) {
       window.location.href = "../login.html";
     } else {
       document.getElementById("navUserNama").innerText = activeUser.nama || "Guru SK Mantin";
+      SemanesAuth.verify(false, "../login.html");
     }
 
     let globalMuridData = [];
@@ -764,9 +767,64 @@
       }
 
       try {
-        const fetchUrl = forceRefresh ? `${APPS_SCRIPT_URL}?refresh=true` : APPS_SCRIPT_URL;
-        const response = await fetch(fetchUrl);
-        const data = await response.json();
+        // 1. Muat Data Murid & Tetapan Sekolah daripada SUPABASE (Pantas)
+        const [muridList, pilihanMap] = await Promise.all([
+          SemanesDB.getMuridList(),
+          SemanesDB.getPilihanMap()
+        ]);
+        const ds = pilihanMap.data_sekolah || {};
+        const sesiSemasa = (ds["Sesi Persekolahan"] && ds["Sesi Persekolahan"][0]) ? ds["Sesi Persekolahan"][0] : "Semasa";
+
+        // 2. Gabungkan data tambahan (Jawatankuasa & Pencapaian) daripada Google Sheets (Apps Script)
+        let extraByName = {};
+        try {
+          const fetchUrl = forceRefresh ? `${APPS_SCRIPT_URL}?refresh=true` : APPS_SCRIPT_URL;
+          const gasRes = await fetch(fetchUrl);
+          const gasJson = await gasRes.json();
+          if (gasJson && gasJson.success && Array.isArray(gasJson.murid)) {
+            gasJson.murid.forEach(gm => {
+              const key = (gm.nama || "").toUpperCase().trim();
+              if (key) extraByName[key] = gm;
+            });
+          }
+        } catch (gasErr) {
+          console.warn("Data tambahan GAS tidak tersedia, papar data teras Supabase:", gasErr);
+        }
+
+        const mergedMurid = muridList.map(m => {
+          const key = (m.nama_murid || "").toUpperCase().trim();
+          const ex = extraByName[key] || {};
+          const agamaClean = (m.agama || "").toUpperCase().trim();
+          return {
+            id: m.id,
+            nama: m.nama_murid || "",
+            tahun: m.tahun || "",
+            kelas: m.kelas || "",
+            gambar: m.gambar || "",
+            uniform: m.uniform || "-",
+            persatuan: m.persatuan || "-",
+            sukan: m.sukan || "-",
+            rumahSukan: m.rumah_sukan || "-",
+            agama: m.agama || "",
+            isIslam: agamaClean === "ISLAM",
+            bacaan: m.bacaan || "Belum Ditentukan",
+            mukaSurat: m.muka_surat || "-",
+            jawatanMurid: m.jawatan || ex.jawatanMurid || "Tiada",
+            jawatankuasaKelas: ex.jawatankuasaKelas || "Tiada",
+            jawatankuasaKoko: ex.jawatankuasaKoko || "Tiada",
+            laporanPencapaian: ex.laporanPencapaian || "Tiada penyertaan direkodkan"
+          };
+        });
+
+        const data = {
+          success: true,
+          tahunSemasa: sesiSemasa,
+          murid: mergedMurid,
+          options: {
+            tahun: ds["Tahun"] || [],
+            kelas: ds["Kelas"] || []
+          }
+        };
 
         if (data.success) {
           globalMuridData = data.murid || [];
@@ -846,7 +904,7 @@
 
         // Avatar: Gambar atau Inisial
         let avatarHtml = '';
-        if (m.gambar && m.gambar.startsWith('http')) {
+        if (m.gambar && (m.gambar.startsWith('http') || m.gambar.startsWith('data:image'))) {
           avatarHtml = `<img src="${m.gambar}" alt="${m.nama}" loading="lazy">`;
         } else {
           const initials = m.nama.split(' ').map(n => n[0]).slice(0, 2).join('');
@@ -958,7 +1016,7 @@
 
       // Paparan Gambar Murid di Tengah Atas
       const photoBox = document.getElementById('mPhotoContainer');
-      if (m.gambar && m.gambar.startsWith('http')) {
+      if (m.gambar && (m.gambar.startsWith('http') || m.gambar.startsWith('data:image'))) {
         photoBox.innerHTML = `<img src="${m.gambar}" alt="${m.nama}">`;
       } else {
         photoBox.innerHTML = `<div class="print-photo-placeholder">Tiada Gambar</div>`;
