@@ -767,40 +767,29 @@
       }
 
       try {
-        // 1. Muat Data Murid & Tetapan Sekolah daripada SUPABASE (Pantas)
+        // 1. Muat Data Murid & Tetapan Sekolah daripada SUPABASE dahulu dan PAPAR SERTA-MERTA
         const [muridList, pilihanMap] = await Promise.all([
           SemanesDB.getMuridList(),
           SemanesDB.getPilihanMap()
         ]);
         const ds = pilihanMap.data_sekolah || {};
         const sesiSemasa = (ds["Sesi Persekolahan"] && ds["Sesi Persekolahan"][0]) ? ds["Sesi Persekolahan"][0] : "Semasa";
+        const filterOpts = {
+          tahun: ds["Tahun"] || [],
+          kelas: ds["Kelas"] || []
+        };
 
-        // 2. Gabungkan data tambahan (Jawatankuasa & Pencapaian) daripada Google Sheets (Apps Script)
-        let extraByName = {};
-        try {
-          const fetchUrl = forceRefresh ? `${APPS_SCRIPT_URL}?refresh=true` : APPS_SCRIPT_URL;
-          const gasRes = await fetch(fetchUrl);
-          const gasJson = await gasRes.json();
-          if (gasJson && gasJson.success && Array.isArray(gasJson.murid)) {
-            gasJson.murid.forEach(gm => {
-              const key = (gm.nama || "").toUpperCase().trim();
-              if (key) extraByName[key] = gm;
-            });
-          }
-        } catch (gasErr) {
-          console.warn("Data tambahan GAS tidak tersedia, papar data teras Supabase:", gasErr);
-        }
-
-        const mergedMurid = muridList.map(m => {
+        const buildMergedList = (extraByName = {}) => muridList.map(m => {
           const key = (m.nama_murid || "").toUpperCase().trim();
           const ex = extraByName[key] || {};
           const agamaClean = (m.agama || "").toUpperCase().trim();
+          const cleanGambar = (m.gambar || ex.gambar || "").toString().trim();
           return {
             id: m.id,
             nama: m.nama_murid || "",
             tahun: m.tahun || "",
             kelas: m.kelas || "",
-            gambar: m.gambar || "",
+            gambar: cleanGambar,
             uniform: m.uniform || "-",
             persatuan: m.persatuan || "-",
             sukan: m.sukan || "-",
@@ -816,26 +805,47 @@
           };
         });
 
-        const data = {
-          success: true,
-          tahunSemasa: sesiSemasa,
-          murid: mergedMurid,
-          options: {
-            tahun: ds["Tahun"] || [],
-            kelas: ds["Kelas"] || []
-          }
-        };
+        // Papar segera data teras + gambar dari Supabase (~200ms) tanpa tunggu Google Sheets
+        globalMuridData = buildMergedList({});
+        currentTahunSemasa = sesiSemasa;
+        setupFilters(filterOpts);
+        filterMuridCards();
 
-        if (data.success) {
-          globalMuridData = data.murid || [];
-          currentTahunSemasa = data.tahunSemasa || "Semasa";
-          localStorage.setItem(CACHE_KEY_LOCAL, JSON.stringify(data));
-          setupFilters(data.options);
-          filterMuridCards();
-          if (forceRefresh) showToast("Pangkalan data murid berjaya dikemaskini!");
-        } else {
-          showToast("Ralat data: " + data.message, true);
+        // 2. Gabungkan data tambahan (Jawatankuasa & Pencapaian) daripada Google Sheets secara latar
+        let extraByName = {};
+        try {
+          const fetchUrl = forceRefresh ? `${APPS_SCRIPT_URL}?refresh=true` : APPS_SCRIPT_URL;
+          const gasRes = await fetch(fetchUrl);
+          const gasJson = await gasRes.json();
+          if (gasJson && gasJson.success && Array.isArray(gasJson.murid)) {
+            gasJson.murid.forEach(gm => {
+              const key = (gm.nama || "").toUpperCase().trim();
+              if (key) extraByName[key] = gm;
+            });
+          }
+        } catch (gasErr) {
+          console.warn("Data tambahan GAS tidak tersedia, papar data teras Supabase:", gasErr);
         }
+
+        const finalMurid = buildMergedList(extraByName);
+        globalMuridData = finalMurid;
+        currentTahunSemasa = sesiSemasa;
+        filterMuridCards();
+
+        // Simpan cache dalam try/catch supaya ralat kuota localStorage (gambar base64) tidak halang paparan
+        try {
+          localStorage.setItem(CACHE_KEY_LOCAL, JSON.stringify({
+            success: true,
+            tahunSemasa: sesiSemasa,
+            murid: finalMurid,
+            options: filterOpts
+          }));
+        } catch (quotaErr) {
+          try { localStorage.removeItem(CACHE_KEY_LOCAL); } catch (e) {}
+          console.warn("Cache localStorage penuh (gambar base64), dilangkau:", quotaErr);
+        }
+
+        if (forceRefresh) showToast("Pangkalan data murid berjaya dikemaskini!");
       } catch (err) {
         console.warn("Rangkaian lambat, memaparkan simpanan setempat:", err);
         if (!localSaved) showToast("Ralat menyambung ke pangkalan data.", true);
@@ -905,7 +915,7 @@
         // Avatar: Gambar atau Inisial
         let avatarHtml = '';
         if (m.gambar && (m.gambar.startsWith('http') || m.gambar.startsWith('data:image'))) {
-          avatarHtml = `<img src="${m.gambar}" alt="${m.nama}" loading="lazy">`;
+          avatarHtml = `<img src="${m.gambar}" alt="${m.nama}" loading="lazy" referrerpolicy="no-referrer">`;
         } else {
           const initials = m.nama.split(' ').map(n => n[0]).slice(0, 2).join('');
           avatarHtml = `<div class="avatar-initials">${initials}</div>`;
@@ -1017,7 +1027,7 @@
       // Paparan Gambar Murid di Tengah Atas
       const photoBox = document.getElementById('mPhotoContainer');
       if (m.gambar && (m.gambar.startsWith('http') || m.gambar.startsWith('data:image'))) {
-        photoBox.innerHTML = `<img src="${m.gambar}" alt="${m.nama}">`;
+        photoBox.innerHTML = `<img src="${m.gambar}" alt="${m.nama}" referrerpolicy="no-referrer">`;
       } else {
         photoBox.innerHTML = `<div class="print-photo-placeholder">Tiada Gambar</div>`;
       }
